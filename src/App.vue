@@ -76,12 +76,10 @@ onMounted(async () => {
   justify-content: center;
   height: 100vh;
 }
-
 .map {
   width: 1000px;
   height: 600px;
 }
-
 .my-select {
   width: 200px;
   padding: 5px;
