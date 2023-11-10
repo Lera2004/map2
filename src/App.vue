@@ -85,17 +85,32 @@ const updateMarkers = () => {
         markerColor = "green";
     }
 
-    L.circleMarker([coordForMarker.Latitude, coordForMarker.Longitude], {
-      radius: 6,
-      fillColor: markerColor,
-      color: markerColor,
-    }).addTo(markerLayer);
+    const markerInstance = L.circleMarker(
+      [coordForMarker.Latitude, coordForMarker.Longitude],
+      {
+        data: 'data marker',
+        radius: 6,
+        fillColor: markerColor,
+        color: markerColor
+      });
+     
+    markerInstance.on('click', () => {
+    
+      onMarkerClick(coordForMarker);
+    });
+
+    markerInstance.addTo(markerLayer);
+
   });
   markerLayer.addTo(map.value);
 };
 
 const filterMarkers = () => {
   updateMarkers();
+};
+
+const onMarkerClick = (marker) => {
+  console.log('Marker clicked:', marker); //тут в нас є вся інформація про дерево, тобі треба додати в template шаблон під картку дерева і тут привлиснити значення потрібним полям (як в тебе було в studentInfo)  
 };
 
 onMounted(() => {
