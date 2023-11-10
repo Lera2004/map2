@@ -85,17 +85,13 @@ const updateMarkers = () => {
         markerColor = "green";
     }
 
-    const markerInstance = L.circleMarker(
-      [coordForMarker.Latitude, coordForMarker.Longitude],
-      {
-        data: 'data marker',
+    const markerInstance = L.circleMarker([coordForMarker.Latitude, coordForMarker.Longitude],{
         radius: 6,
         fillColor: markerColor,
         color: markerColor
       });
      
     markerInstance.on('click', () => {
-    
       onMarkerClick(coordForMarker);
     });
 
