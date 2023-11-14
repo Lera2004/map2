@@ -41,26 +41,37 @@
         </option>
       </select>
     </div>
+    <div v-if="isModalOpen" class="modal">
+          <div class="modal-content">
+            <p class="modal-text"><strong>ID:</strong> {{ selectedTree.TreeID }}</p>
+            <p class="modal-text"><strong>Назва:</strong> {{ selectedTree.Tree_Name }}</p>
+            <p class="modal-text"><strong>Стан:</strong> {{ selectedTree.Tree_State }}</p>
+            <p class="modal-text"><strong>Локація:</strong> {{ selectedTree.Location }}</p>
+            <img v-if="selectedTree.PhotoLink" :src="`@/public${selectedTree.PhotoLink}`" alt="Фото дерева" class="tree-image">
+            <button @click="isModalOpen = false" class="modal-close-btn">Закрити</button>
+          </div>
+        </div>
+
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import L from "leaflet";
-import { treeData } from "./tree_data.js";
+import axios from "axios";
 
+const treeData = ref([]);
 const map = ref();
 const mapContainer = ref();
 const selectedType = ref("all");
 const selectedState = ref("all");
 let markerLayer = L.layerGroup();
-
-const uniqueTypes = [...new Set(treeData.map(item => item.Tree_Name))];
-const uniqueStates = [...new Set(treeData.map(item => item.Tree_State))];
+const uniqueTypes = ref([]);
+const uniqueStates = ref([]);
 
 const updateMarkers = () => {
   markerLayer.clearLayers();
-  const filteredData = treeData.filter(item =>
+  const filteredData = treeData.value.filter(item =>
     (selectedType.value === "all" || item.Tree_Name === selectedType.value) &&
     (selectedState.value === "all" || item.Tree_State === selectedState.value)
   );
@@ -106,19 +117,30 @@ const filterMarkers = () => {
 };
 
 const onMarkerClick = (marker) => {
-  console.log('Marker clicked:', marker); //тут в нас є вся інформація про дерево, тобі треба додати в template шаблон під картку дерева і тут привлиснити значення потрібним полям (як в тебе було в studentInfo)  
+  selectedTree.value = marker;
+  console.log('Marker clicked:', marker);
+  isModalOpen.value = true;
 };
 
 onMounted(() => {
+  axios.get("http://localhost:3000/trees").then((res) => {
+    treeData.value = res.data;
+    uniqueTypes.value = [...new Set(treeData.value.map(item => item.Tree_Name))];
+    uniqueStates.value = [...new Set(treeData.value.map(item => item.Tree_State))];
+    updateMarkers();
+  })
+
   map.value = L.map(mapContainer.value).setView([47.8388, 35.1396], 13);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(map.value);
-
-  updateMarkers();
 });
+
+const isModalOpen = ref(false);
+const selectedTree = ref(null);
 </script>
+
 
 <style scoped>
 .map {
@@ -140,4 +162,40 @@ onMounted(() => {
   height: 20px;
   margin-right: 8px;
 }
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  width: 400px; /* Фіксована ширина модального вікна */
+  text-align: center;
+}
+
+.modal-text {
+  text-align: left; /* Вирівнювання тексту зліва */
+}
+
+.modal-close-btn {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
 </style>
