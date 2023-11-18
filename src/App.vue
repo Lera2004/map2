@@ -43,7 +43,7 @@
     </div>
     <div v-if="isModalOpen" class="modal">
       <div class="modal-content">
-        <p class="modal-text"><strong>ID:</strong> {{ selectedTree.TreeID }}</p>
+        <p class="modal-text"><strong>ID:</strong> {{ selectedTree._id }}</p>
         <p class="modal-text"><strong>Назва:</strong> {{ selectedTree.Tree_Name }}</p>
         <p class="modal-text"><strong>Стан:</strong> {{ selectedTree.Tree_State }}</p>
         <p class="modal-text"><strong>Локація:</strong> {{ selectedTree.Location }}</p>
@@ -104,7 +104,7 @@ const updateMarkers = () => {
     const latitude = coordForMarker.Latitude;
     const longitude = coordForMarker.Longitude;
 
-    // Перевірте, чи обидві координати визначені перед створенням маркера
+
     if (latitude !== undefined && longitude !== undefined) {
       const markerInstance = L.circleMarker([latitude, longitude], {
         radius: 6,
