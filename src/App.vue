@@ -69,10 +69,11 @@ const uniqueTypes = ref([]);
 const uniqueStates = ref([]);
 
 const getImageUrl = (photoLink) => {
-  const imageUrl = `http://localhost:3000${photoLink}`;
+  const imageUrl = `http://localhost:3000/uploads/${photoLink}`;
   console.log('Image URL:', imageUrl);
   return imageUrl;
 };
+
 
 const updateMarkers = () => {
   markerLayer.clearLayers();
