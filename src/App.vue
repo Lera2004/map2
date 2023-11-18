@@ -42,16 +42,15 @@
       </select>
     </div>
     <div v-if="isModalOpen" class="modal">
-          <div class="modal-content">
-            <p class="modal-text"><strong>ID:</strong> {{ selectedTree.TreeID }}</p>
-            <p class="modal-text"><strong>Назва:</strong> {{ selectedTree.Tree_Name }}</p>
-            <p class="modal-text"><strong>Стан:</strong> {{ selectedTree.Tree_State }}</p>
-            <p class="modal-text"><strong>Локація:</strong> {{ selectedTree.Location }}</p>
-            <img v-if="selectedTree.PhotoLink" :src="`@/public${selectedTree.PhotoLink}`" alt="Фото дерева" class="tree-image">
-            <button @click="isModalOpen = false" class="modal-close-btn">Закрити</button>
-          </div>
-        </div>
-
+      <div class="modal-content">
+        <p class="modal-text"><strong>ID:</strong> {{ selectedTree.TreeID }}</p>
+        <p class="modal-text"><strong>Назва:</strong> {{ selectedTree.Tree_Name }}</p>
+        <p class="modal-text"><strong>Стан:</strong> {{ selectedTree.Tree_State }}</p>
+        <p class="modal-text"><strong>Локація:</strong> {{ selectedTree.Location }}</p>
+        <img v-if="selectedTree.PhotoLink" :src="getImageUrl(selectedTree.PhotoLink)" class="tree-image">
+        <button @click="isModalOpen = false" class="modal-close-btn">Закрити</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -68,6 +67,12 @@ const selectedState = ref("all");
 let markerLayer = L.layerGroup();
 const uniqueTypes = ref([]);
 const uniqueStates = ref([]);
+
+const getImageUrl = (photoLink) => {
+  const imageUrl = `http://localhost:3000${photoLink}`;
+  console.log('Image URL:', imageUrl);
+  return imageUrl;
+};
 
 const updateMarkers = () => {
   markerLayer.clearLayers();
@@ -96,19 +101,25 @@ const updateMarkers = () => {
         markerColor = "green";
     }
 
-    const markerInstance = L.circleMarker([coordForMarker.Latitude, coordForMarker.Longitude],{
+    const latitude = coordForMarker.Latitude;
+    const longitude = coordForMarker.Longitude;
+
+    // Перевірте, чи обидві координати визначені перед створенням маркера
+    if (latitude !== undefined && longitude !== undefined) {
+      const markerInstance = L.circleMarker([latitude, longitude], {
         radius: 6,
         fillColor: markerColor,
         color: markerColor
       });
-     
-    markerInstance.on('click', () => {
-      onMarkerClick(coordForMarker);
-    });
 
-    markerInstance.addTo(markerLayer);
+      markerInstance.on('click', () => {
+        onMarkerClick(coordForMarker);
+      });
 
+      markerInstance.addTo(markerLayer);
+    }
   });
+
   markerLayer.addTo(map.value);
 };
 
@@ -141,12 +152,12 @@ const isModalOpen = ref(false);
 const selectedTree = ref(null);
 </script>
 
-
 <style scoped>
 .map {
   width: 1000px;
   height: 600px;
 }
+
 .legend {
   margin-left: 16px;
 }
@@ -162,6 +173,7 @@ const selectedTree = ref(null);
   height: 20px;
   margin-right: 8px;
 }
+
 .modal {
   position: fixed;
   top: 0;
@@ -180,12 +192,20 @@ const selectedTree = ref(null);
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  width: 400px; /* Фіксована ширина модального вікна */
+  width: 400px;
+  /* Фіксована ширина модального вікна */
   text-align: center;
 }
 
+.tree-image {
+  max-width: 100%;
+  max-height: 300px;
+  margin-top: 10px;
+}
+
 .modal-text {
-  text-align: left; /* Вирівнювання тексту зліва */
+  text-align: left;
+  /* Вирівнювання тексту зліва */
 }
 
 .modal-close-btn {
@@ -196,6 +216,4 @@ const selectedTree = ref(null);
   border-radius: 5px;
   cursor: pointer;
   margin-top: 10px;
-}
-
-</style>
+}</style>
